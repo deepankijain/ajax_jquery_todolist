@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const expressSanitizer = require("express-sanitizer");
-const methodOverride = require('method-override');
 
 mongoose.connect("mongodb://localhost:27017/todo_app", {
   useCreateIndex: true,
@@ -18,35 +17,37 @@ app.use(express.urlencoded({
 app.use(express.json());
 app.use(expressSanitizer());
 app.set("view engine", "ejs");
-app.use(methodOverride('_method'));
 
-var todoSchema = new mongoose.Schema({
+const todoSchema = new mongoose.Schema({
   text: String,
 });
 
-var Todo = mongoose.model("Todo", todoSchema);
+const Todo = mongoose.model("Todo", todoSchema);
 
-app.get("/", function (req, res) {
+app.get("/", (req, res) => {
   res.redirect("/todos");
 });
 
-app.get("/todos", function (req, res) {
-  Todo.find({}, function (err, todos) {
+app.get("/todos", (req, res) => {
+  Todo.find({}, (err, todos) => {
     if (err) {
       console.log(err);
     } else {
-      if (req.xhr) return res.json(todos);
-      res.render("index", {
-        todos: todos
-      });
+      if (req.xhr) {
+        res.json(todos);
+      } else {
+        res.render("index", {
+          todos
+        });
+      }
     }
   })
 });
 
-app.post("/todos", function (req, res) {
+app.post("/todos", (req, res) => {
   req.body.todo.text = req.sanitize(req.body.todo.text);
-  var formData = req.body.todo;
-  Todo.create(formData, function (err, newTodo) {
+  const formData = req.body.todo;
+  Todo.create(formData, (err, newTodo) => {
     if (err) {
       res.render("new");
     } else {
@@ -55,10 +56,10 @@ app.post("/todos", function (req, res) {
   });
 });
 
-app.put("/todos/:id", function (req, res) {
+app.put("/todos/:id", (req, res) => {
   Todo.findByIdAndUpdate(req.params.id, req.body.todo, {
     new: true
-  }, function (err, todo) {
+  }, (err, todo) => {
     if (err) {
       console.log(err);
     } else {
@@ -67,8 +68,8 @@ app.put("/todos/:id", function (req, res) {
   });
 });
 
-app.delete("/todos/:id", function (req, res) {
-  Todo.findByIdAndRemove(req.params.id, function (err, todo) {
+app.delete("/todos/:id", (req, res) => {
+  Todo.findByIdAndRemove(req.params.id, (err, todo) => {
     if (err) {
       console.log(err);
     } else {
@@ -77,12 +78,7 @@ app.delete("/todos/:id", function (req, res) {
   });
 });
 
-
-app.listen(3000, function () {
-  console.log('Server running on port 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
-
-// // Uncomment the three lines of code below and comment out or remove lines 84 - 86 if using cloud9
-// app.listen(process.env.PORT, process.env.IP, function(){
-//     console.log("The server has started!");
-// });

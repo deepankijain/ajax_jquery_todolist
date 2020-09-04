@@ -1,15 +1,15 @@
-$('#new-todo-form').submit(async function (e) {
+$('#new-todo-form').submit(function (e) {
     e.preventDefault();
 
     var toDoItem = $(this).serialize();
-    const data = await $.post('/todos', toDoItem);
-    $('#todo-list').append(
-        `
+    $.post('/todos', toDoItem, function (data) {
+        $('#todo-list').append(
+            `
         <li class="list-group-item">
             <form action="/todos/${data._id}" method="POST" class="edit-item-form">
 					<div class="form-group">
 						<label for = '${data._id}' > Item Text </label>
-						<input type="text" id='${data._id}' value="${data.text}" name="todo[text]" class="form-control">
+						<input type="text" id='${data._id}' value="${data.text}" name="todo[text]" class="form-control" autocomplete="off">
 					</div>
 					<button class="btn btn-primary">Update Item</button>
 			</form>
@@ -25,9 +25,11 @@ $('#new-todo-form').submit(async function (e) {
             <div class="clearfix"></div>
 		</li>
         `
-    )
-    $('#new-todo-form').find('.form-control').val('');
+        )
+        $('#new-todo-form').find('.form-control').val('');
+    });
 });
+
 
 $('#todo-list').on('click', '.edit-button', function () {
     $(this).parent().siblings('.edit-item-form').toggle();
@@ -48,7 +50,7 @@ $('#todo-list').on('submit', '.edit-item-form', function (e) {
 				<form action="/todos/${data._id}" method="POST" class="edit-item-form">
 					<div class="form-group">
 						<label for = '${data._id}' > Item Text </label>
-						<input type="text" id='${data._id}' value="${data.text}" name="todo[text]" class="form-control">
+						<input type="text" id='${data._id}' value="${data.text}" name="todo[text]" class="form-control" autocomplete="off">
 					</div>
 					<button class="btn btn-primary">Update Item</button>
 				</form>
